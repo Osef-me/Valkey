@@ -1,7 +1,7 @@
+use crate::api::Api;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use tracing::{info, error};
-use crate::api::Api;
+use tracing::{error, info};
 
 // Request structure
 #[derive(Debug, Serialize)]
@@ -18,7 +18,6 @@ pub struct TokenMessageResponse {
 }
 
 impl Api {
-
     pub async fn register_discord_user(
         &self,
         discord_id: i64,
@@ -31,14 +30,17 @@ impl Api {
 
         let response = self
             .get_client()
-            .post(&format!("{}/api/internal/discord_register", self.get_base_url()))
+            .post(format!(
+                "{}/api/internal/discord_register",
+                self.get_base_url()
+            ))
             .json(&request)
             .send()
             .await?;
 
         let status = response.status();
         let body = response.text().await.unwrap_or_default();
-        
+
         info!("API Response Status: {}", status);
 
         if status.is_success() {

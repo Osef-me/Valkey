@@ -14,10 +14,7 @@ impl Api {
         );
         headers.insert("Content-Type", "application/json".parse().unwrap());
 
-        let client = Client::builder()
-            .default_headers(headers)
-            .build()
-            .unwrap();
+        let client = Client::builder().default_headers(headers).build().unwrap();
 
         Self { client, base_url }
     }
