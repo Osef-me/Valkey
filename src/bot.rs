@@ -14,7 +14,6 @@ use crate::handlers::commands::register;
 use crate::api::Api;
 
 pub struct BotHandler {
-    config: Config,
     api: Api,
 }
 
@@ -89,8 +88,7 @@ impl Bot {
         
         let client = Client::builder(&config.discord_token, intents)
             .event_handler(BotHandler { 
-                config,
-                api,
+                 api,
             })
             .await?;
         
