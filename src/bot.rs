@@ -12,8 +12,9 @@ use tokio::sync::mpsc;
 
 use crate::api::Api;
 use crate::config::Config;
+use crate::embed::create_score_embed;
 use crate::handlers::commands::register;
-use crate::models::ScoreDisplay;
+use crate::models::ScoreReplay;
 
 pub struct BotHandler {
     api: Api,
@@ -76,11 +77,11 @@ impl EventHandler for BotHandler {
 pub struct Bot {
     client: Client,
     config: Config,
-    score_receiver: mpsc::UnboundedReceiver<ScoreDisplay>,
+    score_receiver: mpsc::UnboundedReceiver<ScoreReplay>,
 }
 
 impl Bot {
-    pub async fn new(config: Config, score_receiver: mpsc::UnboundedReceiver<ScoreDisplay>) -> anyhow::Result<Self> {
+    pub async fn new(config: Config, score_receiver: mpsc::UnboundedReceiver<ScoreReplay>) -> anyhow::Result<Self> {
         // Créer l'API
         let api = Api::new(config.api_base_url.clone(), config.api_token.clone());
 
@@ -127,35 +128,18 @@ impl Bot {
     async fn publish_score(
         http: &serenity::http::Http,
         config: &Config,
-        score: &ScoreDisplay,
+        score: &ScoreReplay,
     ) -> anyhow::Result<()> {
         let channel_id = serenity::model::id::ChannelId::new(config.scores_channel_id);
         
-        let embed = serenity::builder::CreateEmbed::new()
-            .title("🎵 Nouveau Score!")
-            .description(format!(
-                "**Joueur:** {}\n**Beatmap ID:** {}\n**Score:** {}\n**Accuracy:** {:.2}%\n**Rank:** {}\n**Mods:** {}",
-                score.username.as_deref().unwrap_or("Inconnu"),
-                score.beatmap_id,
-                score.score,
-                score.accuracy,
-                score.rank,
-                score.mods
-            ))
-            .field("Hits", format!(
-                "300: {} | 100: {} | 50: {} | Miss: {}",
-                score.count_300, score.count_100, score.count_50, score.count_miss
-            ), false)
-            .field("Combo", format!("Max: {} | Perfect: {}", score.max_combo, if score.perfect { "Oui" } else { "Non" }), false)
-            .color(0x00ff00);
-
+        let embed = create_score_embed(score);
         let builder = serenity::builder::CreateMessage::new().embed(embed);
         
         channel_id.send_message(http, builder).await?;
         
-        info!("Score publié pour l'utilisateur {} (ID: {})", 
-              score.username.as_deref().unwrap_or("Inconnu"), 
-              score.user_id);
+        info!("Score published for user {} (ID: {})", 
+              score.user.username.as_deref().unwrap_or("Unknown"), 
+              score.user.discord_id);
         
         Ok(())
     }

@@ -1,6 +1,7 @@
 pub mod api;
 pub mod bot;
 pub mod config;
+pub mod embed;
 pub mod handlers;
 pub mod models;
 
@@ -29,7 +30,7 @@ async fn main() -> Result<()> {
     println!("🌐 Serveur Axum créé");
 
     // Démarrer le serveur Axum
-    let listener = TcpListener::bind("0.0.0.0:3000").await?;
+    let listener = TcpListener::bind("0.0.0.0:3005").await?;
     println!("🚀 Serveur Axum démarré sur le port 3000");
     
     tokio::spawn(async move {

@@ -10,10 +10,10 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tower_http::cors::CorsLayer;
 
-use crate::models::ScoreDisplay;
+use crate::models::ScoreReplay;
 use crate::config::Config;
 
-pub type ScoreSender = mpsc::UnboundedSender<ScoreDisplay>;
+pub type ScoreSender = mpsc::UnboundedSender<ScoreReplay>;
 
 pub struct ServerState {
     pub score_sender: ScoreSender,
@@ -32,7 +32,7 @@ pub async fn create_server(_config: Config, score_sender: ScoreSender) -> anyhow
 
 async fn handle_score(
     State(state): State<Arc<ServerState>>,
-    Json(score): Json<ScoreDisplay>,
+    Json(score): Json<ScoreReplay>,
 ) -> Result<Json<Value>, StatusCode> {
     tracing::info!("Score reçu: {:?}", score);
 
