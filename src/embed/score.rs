@@ -10,7 +10,6 @@ pub fn create_score_embed(score: &ScoreReplay) -> CreateEmbed {
         .and_then(|b| b.msd.first());
 
     let unknown = "Unknown".to_string();
-    let artist = beatmapset.map(|bs| &bs.artist).unwrap_or(&unknown);
     let title = beatmapset.map(|bs| &bs.title).unwrap_or(&unknown);
     let creator = beatmapset.map(|bs| &bs.creator).unwrap_or(&unknown);
     let difficulty = beatmap.map(|b| &b.difficulty).unwrap_or(&unknown);
